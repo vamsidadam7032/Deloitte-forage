@@ -1,0 +1,108 @@
+import json
+import unittest
+import datetime
+
+with open("./data-1.json","r") as f:
+    jsonData1 = json.load(f)
+with open("./data-2.json","r") as f:
+    jsonData2 = json.load(f)
+with open("./data-result.json","r") as f:
+    jsonExpectedResult = json.load(f)
+
+
+def convertFromFormat1 (jsonObject):
+
+    # IMPLEMENT: Conversion From Type 1
+
+    return NotImplemented
+
+
+def convertFromFormat2 (jsonObject):
+
+    # IMPLEMENT: Conversion From Type 1
+
+    return NotImplemented
+
+
+def main (jsonObject):
+
+    result = {}
+
+    if (jsonObject.get('device') is None):
+        result = convertFromFormat1(jsonObject)
+    else:
+        result = convertFromFormat2(jsonObject)
+
+    return result
+
+
+class TestSolution(unittest.TestCase):
+
+    def test_sanity(self):
+
+        result = json.loads(json.dumps(jsonExpectedResult))
+        self.assertEqual(
+            result,
+            jsonExpectedResult
+        )
+
+    def test_dataType1(self):
+
+        result = main (jsonData1)
+        self.assertEqual(
+            result,
+            jsonExpectedResult,
+            'Converting from Type 1 failed'
+        )
+
+    def test_dataType2(self):
+
+        result = main (jsonData2)
+        self.assertEqual(
+            result,
+            jsonExpectedResult,
+            'Converting from Type 2 failed'
+        )
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+# helper: convert ISO string -> milliseconds
+def iso_to_millis(iso_str):
+    # from "2020-01-01T00:00:00Z" → epoch millis
+    dt = datetime.datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
+    return int(dt.timestamp() * 1000)
+
+def convert_from_format_1(msg):
+    # Example structure: data-1.json
+    # {
+    #   "device_id": "abc123",
+    #   "timestamp": "2020-01-01T00:00:00Z",
+    #   "temperature": 22.5,
+    #   "humidity": 40
+    # }
+    return {
+        "deviceId": msg["device_id"],
+        "timestamp": iso_to_millis(msg["timestamp"]),
+        "metrics": {
+            "temperature": msg["temperature"],
+            "humidity": msg["humidity"]
+        }
+    }
+
+def convert_from_format_2(msg):
+    # Example structure: data-2.json
+    # {
+    #   "id": "abc123",
+    #   "time": 1577836800000,
+    #   "data": { "temp": 22.5, "hum": 40 }
+    # }
+    return {
+        "deviceId": msg["id"],
+        "timestamp": msg["time"],  # already millis
+        "metrics": {
+            "temperature": msg["data"]["temp"],
+            "humidity": msg["data"]["hum"]
+        }
+    }
